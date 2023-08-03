@@ -5,6 +5,8 @@ You can run it on **ANY** playform without changing a single line of code!
 
 However, if you want to use some advanced functions, (only backup currently), you can install [html5plus](https://www.html5plus.org/doc/h5p.html).
 
+Your data are storaged in your device completely, in order to protect your privacy.
+
 # ! Important Notice Before You Use My Code !
 Diary is a diary app created by [Bernie Huang](https://github.com/BernieHuang2008).
 

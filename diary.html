@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title>Diary</title>
+
+		<style>
+			body {
+				margin: 0;
+				text-align: center;
+				width: 100vw;
+				min-height: 100vh;
+				overflow-x: hidden;
+				background-size: cover;
+				background-repeat: no-repeat;
+			}
+
+			#w_today {
+				max-width: 700px;
+				width: calc(100vw - 40px);
+				margin-top: 20px;
+				margin: auto;
+				padding-bottom: 10px;
+			}
+
+			#moodsel {
+				margin-top: 80px !important;
+				backdrop-filter: blur(10px);
+				width: max-content;
+				margin: auto;
+				padding: 2px 4px 2px 4px;
+				background-color: #6663;
+				border-radius: 6px;
+				transition: .3s;
+			}
+
+			#moodsel>button {
+				width: 40px;
+				height: 40px;
+				font-size: 20px;
+				border-radius: 5px;
+				border: 0;
+				background-color: #fff5;
+				margin: 2px;
+				box-shadow: none;
+				transition: .3s;
+			}
+
+			#moodsel>button.focus {
+				box-shadow: 0 2px 2px 0 rgba(26, 24, 29, .16), 0 1px 4px 0 rgba(26, 24, 29, .12);
+			}
+
+			.loca {
+				width: max-content;
+				max-width: min(700px, 80vw);
+				text-overflow: ellipsis;
+				margin: auto;
+				padding: 5px 10px 5px 10px;
+				background-color: #7773;
+				border-radius: 5px;
+				margin-top: 10px;
+				white-space: nowrap;
+				overflow: hidden;
+				opacity: 75%;
+			}
+
+			.loca::before {
+				content: ' ';
+				font-family: 'SMDL';
+				color: orange;
+			}
+
+			.mood {
+				width: max-content;
+				margin: auto;
+				padding: 5px 10px 5px 10px;
+				background-color: #7772;
+				border-radius: 5px;
+				margin-top: 10px;
+				opacity: 75%;
+			}
+
+			.card {
+				margin: 20px;
+				text-align: left;
+				border: solid #cfac74 2px;
+				border-radius: 10px;
+				padding: 10px;
+				background-color: #cfac7455;
+				min-height: 5em;
+				opacity: 75%;
+			}
+
+			.floatingBtn {
+				width: 50px;
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				border-radius: 100%;
+				font-size: 50px;
+				background-color: #f0f9fb;
+				position: fixed;
+				bottom: 50px;
+				right: 50px;
+				user-select: none;
+				transition: .3s;
+			}
+
+			.floatingBtn:hover {
+				box-shadow: 3px 1px 5px 0 rgba(26, 24, 29, .12), 0 4px 4px 0 rgba(26, 24, 29, .16);
+			}
+
+			#datetab {
+				user-select: none;
+				height: 52px;
+				width: 100vw;
+				position: fixed;
+				top: 0;
+				left: 0;
+				padding: 5px;
+				display: block;
+				backdrop-filter: blur(10px);
+				background-color: #cfac7444;
+				z-index: 1000;
+			}
+
+			#datetab>button {
+				width: 50px;
+				height: 50px;
+				font-size: 30px;
+				display: inline-block;
+				border: 0;
+				border-radius: 5px;
+				background-color: #fff5;
+				box-shadow: none;
+			}
+
+			#datetab>button:not(.smdl) {
+				position: relative;
+				top: -5px;
+			}
+
+			button:hover {
+				cursor: pointer;
+			}
+
+			#dateweek {
+				display: inline-block;
+				height: 50px;
+			}
+
+			#dateweek>button {
+				margin: 0;
+				position: relative;
+				top: -30px;
+				width: 50px;
+				height: 60px;
+				margin-left: 5px;
+				margin-right: 5px;
+				border: 0;
+				background-color: transparent;
+				transition: .1s;
+				border: 0;
+				border-radius: 5px;
+				box-shadow: none;
+			}
+
+			#dateweek>button:hover {
+				box-shadow: 0 2px 2px 0 rgba(26, 24, 29, .16), 0 1px 4px 0 rgba(26, 24, 29, .12);
+			}
+
+			#dateweek>button.focus {
+				background-color: #fff5;
+				box-shadow: 0 2px 2px 0 rgba(26, 24, 29, .16), 0 1px 4px 0 rgba(26, 24, 29, .12);
+			}
+
+			#dateweek>button>h2 {
+				margin: 0;
+			}
+
+			span.mon {
+				color: grey;
+			}
+
+			#datetab>h2 {
+				margin: 0;
+				position: fixed;
+				left: 10px;
+				top: calc(25px - 0.5em);
+			}
+
+			@font-face {
+				font-family: 'SMDL';
+				src: url('SMDL.woff');
+			}
+
+			.smdl {
+				font-family: 'SMDL';
+			}
+
+			.timestamp {
+				font-size: 0.8em;
+				position: relative;
+				color: grey;
+			}
+
+			.timestamp.card_ts {
+				bottom: -20px;
+			}
+
+			.timestamp.mood_ts {
+				bottom: -10px;
+			}
+
+			.timestamp.loca_ts {
+				bottom: -10px;
+			}
+
+			.card+.timestamp.loca_ts {
+				display: none;
+			}
+
+			.card+.timestamp+.loca {
+				width: calc(min(640px, calc(100% - 40px - 2ch)) - 4px) !important;
+				position: relative;
+				top: -20px;
+				border-top-right-radius: 0;
+				border-top-left-radius: 0;
+				border: solid #cfac74 2px;
+				border-top: 0;
+				max-width: 100vw !important;
+			}
+		</style>
+		<style>
+			.card:has(+.timestamp+.loca) {
+				border-bottom: none;
+				border-bottom-right-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+		</style>
+		<script>
+			function $(q) {
+				return document.querySelector(q);
+			}
+
+			function $$(q) {
+				return document.querySelectorAll(q);
+			}
+
+			var HttpClient = function() {
+				this.get = function(aUrl, aCallback) {
+					var anHttpRequest = new XMLHttpRequest();
+					anHttpRequest.onreadystatechange = function() {
+						if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
+							aCallback(anHttpRequest.responseText);
+					}
+
+					anHttpRequest.open("GET", aUrl, true);
+					anHttpRequest.send(null);
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<script>
+			var sec_key = "\x01";
+
+			function sec_encode(content) {
+				var secret = "";
+				for (var i = 0; i < content.length; i++) {
+					secret += String.fromCharCode(content[i].charCodeAt() ^ sec_key[i % sec_key.length].charCodeAt());
+				}
+				return secret;
+			}
+
+			var sec_decode = sec_encode;
+		</script>
+		<script>
+			var diary;
+			var date = new Date();
+			var dateselector_d = new Date();
+			const TODAY = {
+				year: date.getFullYear(),
+				mon: date.getMonth() + 1,
+				date: date.getDate()
+			};
+			date = TODAY;
+
+			const TIMELINE_CARD = 1;
+			const TIMELINE_MOOD = 2;
+			const TIMELINE_LOCA = 3;
+
+			function load(arg1, flag_mode) {
+				w_today.innerHTML = "";
+
+				diary = JSON.parse(localStorage.getItem('diary') || "{}");
+
+				var diary_year = diary[date.year] = diary[date.year] || {};
+				var diary_mon = diary_year[date.mon] = diary_year[date.mon] || {};
+				var today = diary_mon[date.date] || sec_encode(`\0${TIMELINE_CARD}\0`);
+
+				today.split('\0').forEach(content => {
+					let item = sec_decode(content).split('\0');
+					switch (Number(item[1])) {
+						case TIMELINE_CARD:
+							create_card(item[2], item[0]);
+							break;
+						case TIMELINE_MOOD:
+							create_mood(item[2], item[0]);
+							break;
+						case TIMELINE_LOCA:
+							create_location(item[2], item[0]);
+							break;
+						default:
+							console.log("Unknown class:", item[1]);
+							// create_card(item[0]);
+							console.log(item);
+							window.globalerror = item[1]
+					}
+				})
+				if (equ(TODAY, date)) {
+					/* mood */
+					if (!$('.mood'))
+						moodsel.style.opacity = "100%";
+					else {
+						if (new Date() - new Date($('.mood').dataset.time) < 10 * 60 * 1000)
+							moodsel.style.opacity = "40%";
+						else
+							moodsel.style.opacity = "100%";
+					}
+
+					/* card */
+					// create_card();
+				} else {
+					moodsel.style.opacity = "0%";
+				}
+
+				if (arg1 != 1) {
+					var today_date = new Date(`${date.year}-${date.mon}-${date.date}`);
+					switch_week(today_date);
+				}
+
+				dateselector_d = new Date(`${date.year}-${date.mon}-${date.date}`);
+
+				// check LOCA
+				$$('.loca').forEach(ele => {
+					if (ele.innerText.indexOf("Still") != -1) {
+						// have 'still' in innertext
+						if (ele.previousElementSibling.previousElementSibling == undefined ||
+							!ele.previousElementSibling.previousElementSibling.classList.contains('card')) {
+							// prev-prev item is not a card, the this is a invalid LOCA.
+							ele.previousElementSibling.remove(); // remove the time.
+							ele.remove(); // remove it
+						}
+					}
+				})
+
+				process_flag(flag_mode || 0);
+			}
+
+			function randomChoice(all_choices) {
+				return all_choices[Math.floor(Math.random() * all_choices.length)];
+			}
+
+			function process_flag(mode) {
+				/*
+				 - mode=0: load mode (exec each time the shown date changed)
+				 - mode=1: wload mode (exec only when the app boot.)
+				*/
+				var flags = diary.flags;
+
+				flag_box.innerHTML = "";
+
+				// <blur-content> : blur the cards which isn't focused.
+				if (flags['blur-content']) {
+					flag_box.innerHTML +=
+						"<style>.card:not(:focus,:hover) {text-shadow: 2px 2px 10px #000000;color: transparent;}</style>";
+				}
+				// <random-review> : randomly show a diary to user.
+				if (flags['random-review'] && mode == 1) {
+					if (confirm('Would like a random review?')) {
+						var all_choices = [];
+						var today;
+
+						for (year in diary)
+							if (year != 'flags')
+								for (month in diary[year])
+									for (day in diary[year][month])
+										if (diary[year][month][day]) {
+											var lst = diary[year][month][day].split('\0');
+											var latest_mood = 'Become unknown😑';
+											for (var i = 0; i < lst.length; i++) {
+												item = sec_decode(lst[i]);
+												switch (Number(item.split('\0')[1])) {
+													case TIMELINE_CARD:
+														all_choices.push([item, latest_mood]);
+														break;
+													case TIMELINE_MOOD:
+														latest_mood = item.split('\0')[2];
+														break;
+												}
+											}
+										}
+
+						var choice = randomChoice(all_choices);
+
+						var cont = choice[0].split('\0')[2];
+						var latest_mood = choice[1].split(' ')[1];
+
+						var time = new Date(choice[0]);
+						time = `${time.getFullYear()}.${time.getMonth()+1}.${time.getDate()}`;
+
+						init_window_rr(time, cont, latest_mood.toLowerCase());
+					}
+				}
+			}
+
+			const days = ['Sun', 'Mon', 'Tue', 'Wen', 'Tur', 'Fri', 'Sat'];
+			const mons = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', "Aug", 'Sep', 'Oct', 'Nov', 'Dec'];
+			const mons_full = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
+				'November', 'December'
+			];
+
+			function switch_week(today_date) {
+				var day_of_the_week = today_date.getDay();
+				var hldate = new Date(`${date.year}-${date.mon}-${date.date}`);
+
+				dateweek.innerHTML = "";
+				ds_year.innerText = today_date.getFullYear();
+
+				for (var i = 0; i < 7; i++) {
+					var day = days[i];
+					var btn = document.createElement('button');
+					let this_date = new Date(today_date);
+					this_date.setDate(today_date.getDate() - (day_of_the_week - i))
+
+					btn.innerHTML =
+						`<span class=mon>${mons[this_date.getMonth()]}.</span><h2>${this_date.getDate()}</h2><span>${day}</span>`;
+
+					if (equ2(this_date, hldate)) {
+						btn.classList = 'focus';
+					} else {
+						btn.onclick = function() {
+							switch_date(this_date.getFullYear(), this_date.getMonth() + 1, this_date.getDate());
+							dateselector_d = new Date(this_date);
+						}
+					}
+					dateweek.appendChild(btn);
+				}
+			}
+
+			function ds_month(cnt) {
+				dateselector_d.setMonth(dateselector_d.getMonth() + cnt);
+				open_window_sel();
+			}
+
+			function ds_week(cnt) {
+				dateselector_d.setDate(dateselector_d.getDate() + 7 * cnt);
+				switch_week(dateselector_d);
+			}
+
+			function ds_day(cnt) {
+				dateselector_d.setDate(dateselector_d.getDate() + cnt);
+				switch_date(dateselector_d.getFullYear(), dateselector_d.getMonth() + 1, dateselector_d.getDate())
+			}
+
+			function gen_timeline(filter) {
+				var timeline = [];
+				for (var i = w_today.children.length - 1; i >= 0; i--) {
+					x = w_today.children[i];
+					if (x.dataset.timeline == 'true') {
+						var item = [x.dataset.time, x.dataset.class, x.innerText.trim().replaceAll(/\n{3,10}/g, '\n\n')];
+						var match_filter = true;
+						if (filter) {
+							filter.forEach(f => {
+								if (item[f[0]].indexOf(f[1]) == -1)
+									match_filter = false;
+							})
+						}
+						if (match_filter)
+							timeline.push(item);
+					}
+				}
+				timeline.sort((a, b) => {
+					return new Date(a[0]) > new Date(b[0]) ? 1 : -1;
+				})
+				return timeline;
+			}
+
+			function store() {
+				if (equ(TODAY, date)) {
+					var today = [];
+					var timeline = gen_timeline();
+
+					timeline.forEach(item => {
+						if (item[2].trim() != '') {
+							today.push(sec_encode(item.join('\0')));
+						}
+					})
+
+					if (today.length == 0) {
+						delete diary[date.year][date.mon][date.date];
+					} else {
+						today = today.join('\0');
+						diary[date.year][date.mon][date.date] = today;
+					}
+
+					localStorage.diary = JSON.stringify(diary);
+				}
+			}
+
+			function extract_text(card) {
+				return card.innerText;
+			}
+
+			function equ(a, b) {
+				return a.year == b.year && a.mon == b.mon && a.date == b.date;
+			}
+
+			function equ2(a, b) {
+				return a.getFullYear() == b.getFullYear() && a.getMonth() == b.getMonth() && a.getDate() == b.getDate();
+			}
+
+			function timestamp(time, mode) {
+				var time = new Date(time);
+				var hour = String(time.getHours());
+				var minute = String(time.getMinutes());
+
+				return `<span class='timestamp ${mode}_ts'>${hour.padStart(2,'0')}:${minute.padStart(2,'0')}</span>`;
+			}
+
+			function create_card(text, force) {
+				text = text || '';
+				if (force || !$('.card') || $('.card').innerText.trim() != '') {
+					var item = [force || new Date().toString(), TIMELINE_CARD];
+
+					if ($('.loca') && !force) {
+						var coords = $('.loca').innerText.match(/\([0-9].+?\)/g)[0].replace('(', '').replace(')', '').split(',');
+						var addr = $('.loca').innerText.match(/ at .+?\([0-9]/g)[0];
+						process_location({
+							coord: {
+								latitude: Number(coords[0]), //纬度
+								longitude: Number(coords[1]) //经度
+							},
+							address: addr.substring(4, addr.length - 2)
+						}, true);
+					}
+
+					w_today.innerHTML =
+						`${timestamp(item[0], 'card')}<div data-timeline=true data-time='${item[0]}' data-class='${item[1]}' class='card' ${equ(TODAY, date)?'contenteditable':''}></div> ${w_today.innerHTML}`;
+
+					$('.card').innerText = text;
+					store();
+				}
+			}
+
+			function switch_date(new_year, new_mon, new_date) {
+				store();
+				date = {
+					year: new_year,
+					mon: new_mon,
+					date: new_date
+				}
+				load();
+			}
+
+			function update_location() {
+				navigator.geolocation.getCurrentPosition(process_location, console.log, {
+					provider: "system"
+				});
+				return;
+			}
+
+			document.addEventListener('plusready', function() {
+				update_location();
+			})
+
+			window.onload = function() {
+				if (navigator.userAgent.indexOf('Html5Plus/1.0') != -1) {
+					// mobile app
+					window.has_plus = true;
+
+					document.addEventListener('keyboardchange', update_store);
+					document.addEventListener('resume', update_location);
+				} else {
+					update_location();
+				}
+
+				if (window.innerWidth < 900) {
+					ds_year.style.display = "none";
+				}
+				if (window.innerWidth < 650) {
+					ds_week = ds_day;
+					document.body.innerHTML += "<style>#dateweek>button:not(.focus){display: none;}</style>"
+				}
+				if (window.innerWidth < 470) {
+					window_sel_h.style.zoom = 0.7;
+					window_sel_t.style.zoom = 0.7;
+				}
+				if (window.innerHeight < 750 * Number(window_sel_h.style.zoom || 1)) {
+					window_sel_h.style.zoom = window.innerHeight / 850;
+					window_sel_t.style.zoom = window.innerHeight / 850;
+				}
+
+				load(undefined, 1);
+			}
+
+			function update_store(e) {
+				if (window_import.style.display == 'none') {
+					// not importing.
+					store();
+				}
+			}
+
+			document.body.onclick = document.body.onkeyup = update_store;
+
+			function plus_io_writeFlie(path, data) {
+				return new Promise(resolve => { //这里封装了个是一个promise异步请求
+					// plus.io.requestFileSystem是请求本地文件系统对象
+					plus.io.requestFileSystem(
+						plus.io.PRIVATE_DOC, // 文件系统中的根目录下的DOCUMENTS目录
+						fs => {
+							// 创建或打开文件, fs.root是根目录操作对象,直接fs表示当前操作对象
+							fs.root.getFile(path, {
+								create: true // 文件不存在则创建
+							}, fileEntry => {
+								// 文件在手机中的路径
+								// console.log(fileEntry.fullPath)
+								fileEntry.createWriter(writer => {
+									// 写入文件成功完成的回调函数
+									writer.onwrite = e => {
+										console.log("写入本地文件成功");
+										resolve("写入本地文件")
+									};
+									// 写入数据
+									writer.write(data);
+								})
+							}, e => {
+								console.log("getFile failed: " + e.message);
+							});
+						},
+						e => {
+							console.log(e.message);
+						}
+					);
+				})
+			}
+
+			function plus_io_readFile(path) {
+				return new Promise(resolve => { //文件读写是一个异步请求 用promise包起来方便使用时的async+await
+					plus.io.requestFileSystem(
+						plus.io.PRIVATE_DOC,
+						fs => {
+							fs.root.getFile(path, {
+								create: false
+							}, fileEntry => {
+								fileEntry.file((file) => {
+									console.log("文件大小:" + file.size + '-- 文件名:' + file.name);
+									//创建读取文件对象
+									let fileReader = new plus.io.FileReader();
+									//以文本格式读取文件数据内容
+									fileReader.readAsText(file, 'utf-8');
+									//文件读取操作完成时的回调函数
+									fileReader.onloadend = (evt) => {
+										resolve(evt.target.result)
+									}
+								});
+							}, e => {
+								console.log("getFile failed: " + e.message);
+							});
+						},
+						e => {
+							console.log(e.message);
+						}
+					);
+				})
+			}
+
+			async function cmd() {
+				var cmd = prompt("Command:");
+				if (!cmd)
+					return false;
+				cmd = cmd.trim().toLowerCase().split(' ');
+
+				switch (cmd[0]) {
+					case 'export':
+						document.write(`<textarea>${localStorage.diary}</textarea>`);
+						break;
+					case 'import':
+						init_window_import();
+						window_import.style.display = "block";
+						break;
+					case 'debug':
+						var sc = document.createElement('script');
+						sc.src = "https://cdn.bootcss.com/vConsole/3.3.4/vconsole.min.js";
+						$("#hidden-div").appendChild(sc);
+						setTimeout(() => {
+							var vConsole = new VConsole();
+						}, 500);
+						break;
+					case 'backup':
+						await plus_io_writeFlie("diary.txt", localStorage.diary);
+						alert("Backup Complete!");
+						break;
+					case 'restore':
+						if (confirm('Confirm restore? You will lost all your current data.')) {
+							var res = await plus_io_readFile("diary.txt");
+							localStorage.diary = res;
+							window.location.reload();
+						}
+						break;
+					case 'print':
+						w_today.innerHTML = print_last_month();
+						flag_box.innerHTML = "";
+						print();
+						break;
+					case 'flag':
+						var option = cmd[1];
+						var flag = cmd[2];
+						if (flag && option) {
+							diary['flags'] = diary.flags || {};
+							diary.flags[flag] = (option == 'enable');
+							store();
+							alert(`Flag Set to '${diary.flags[flag]}'.`);
+						} else {
+							alert("Invalid Parameters.");
+						}
+						break;
+				}
+			}
+
+			function select_mood(mood, emoji) {
+				if (change_mood(mood, emoji) == 'del') {
+					mood = 'all need to be unfocused.';
+				}
+				$$("#moodsel>button").forEach(child => {
+					if (child.title == mood) {
+						child.classList.add("focus");
+					} else {
+						child.classList.remove("focus");
+					}
+				})
+			}
+
+			function change_mood(mood, emoji) {
+				var emoji_regex = /(\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f\ude80-\udeff])|[\u2600-\u2B55]/g;
+
+				var timeline = gen_timeline([
+					[1, TIMELINE_MOOD]
+				]);
+
+				var last_mood = timeline[timeline.length - 1] || [0, TIMELINE_MOOD, ''];
+				var lastlmood = timeline[timeline.length - 2] || [0, TIMELINE_MOOD, ''];
+				var last_mood_time = new Date(last_mood[0]);
+				var last_mood_same = (last_mood[2].match(emoji) == emoji);
+
+				if (new Date() - last_mood_time > 10 * 60 * 1000) { // 10 min
+					// new mood.
+					var content = "";
+					if (last_mood_same) {
+						content = "Still " + mood + emoji;
+					} else {
+						content = "Become " + mood + emoji;
+					}
+					var item = [new Date().toString(), TIMELINE_MOOD];
+					create_mood(content, item[0]);
+				} else {
+					// change mood.
+					if (last_mood_same) {
+						// press the same button, revoke the prev mood.
+						$('.mood_ts').remove();
+						$('.mood').remove();
+						moodsel.style.opacity = "100%";
+						return 'del';
+					}
+					var content = "";
+					last_mood = lastlmood;
+					last_mood_same = (last_mood[2].match(emoji_regex) == emoji);
+
+					if (last_mood_same) {
+						content = "Still " + mood + emoji;
+					} else {
+						content = "Become " + mood + emoji;
+					}
+					var item = [new Date().toString(), TIMELINE_MOOD];
+					$('.mood').dataset.time = item[0];
+					$('.mood').innerHTML = content;
+				}
+			}
+
+			function create_mood(content, time) {
+				moodsel.style.opacity = "40%";
+
+				w_today.innerHTML =
+					`${timestamp(time, 'mood')}<div data-timeline=true data-time='${time || new Date().toString()}' data-class='${TIMELINE_MOOD}' class='mood'>${content}</div> ${w_today.innerHTML}`;
+
+				store();
+			}
+
+			function amap_js_api(long, lati, cback) {
+				// amap js api
+				const AMAP_KEY = "0000731dfe185f57e0e23223b14db3de";
+
+				var http = new HttpClient();
+
+				function six(inti) {
+					var s = String(inti);
+					return s.match(/[0-9]{1,3}\.[0-9]{1,6}/g)[0]
+				}
+				var url =
+					`https://restapi.amap.com/v3/geocode/regeo?key=${AMAP_KEY}&location=${six(long)},${six(lati)}&extensions=base`;
+				http.get(url, res => {
+					res = JSON.parse(res);
+					window.regeo_name = "";
+					if (res.infocode != "10000") {
+						cback();
+						console.log(res)
+						return console.log("Amap reGeo js api error. Error Code:", res.infocode);
+					}
+					window.regeo_name = res.regeocode.formatted_address;
+					cback();
+					window.regeo_name = null;
+				});
+			}
+
+			function process_location(position, force_same) {
+				if (!equ(TODAY, date))
+					return 'not this day!';
+
+				var c = position.coords || position.coord;
+				if (c.speed)
+					return 'moving';
+
+				var acc = c.accuracy || 150; // 精度
+				let lati = c.latitude; // 纬度
+				let long = c.longitude; // 经度
+				console.log("定位精度：", acc);
+
+				if (acc > 400 ||
+					String(lati).length - String(lati).indexOf('.') < 4 || String(long).length - String(long).indexOf('.') < 4) {
+					return 'unprecise';
+				}
+				var min_delta = 750 + acc;
+				var name = position.address || ""; // 位置名称 
+
+				if (window.has_plus && position.address) {
+					var addr = position.address;
+					name = addr.street || addr.poiName || addr.district || addr;
+				}
+
+				if (!$('.loca')) {
+					if (!name) {
+						amap_js_api(long, lati, function() {
+							create_location(`Arrive at ${window.regeo_name}(${lati}, ${long})`);
+						})
+					} else {
+						create_location(`Arrive at ${name}(${lati}, ${long})`);
+					}
+					return;
+				}
+
+				var last_pos = $('.loca').innerText.match(/\([0-9].+?[0-9]\)/g)[0].replace('(', '').replace(')', '').split(',');
+				var last_lati = Number(last_pos[0]);
+				var last_long = Number(last_pos[1]);
+
+				var delta_lati = (last_lati - lati) * 4e5; // meter 
+				var delta_long = (last_long - long) * 4e5; // meter 
+				var same_pos = (Math.pow(delta_lati, 2) + Math.pow(delta_long, 2) < Math.pow(min_delta, 2));
+
+
+				if (same_pos) {
+					console.log($('.loca').dataset.time);
+					if (force_same && new Date() - new Date($('.loca').dataset.time) > 60 * 60 * 1000) {
+						// 1 hour
+						if (!name) {
+							amap_js_api(long, lati, function() {
+								create_location(`Still at ${window.regeo_name}(${lati}, ${long})`);
+							})
+						} else {
+							create_location(`Still at ${name}(${lati}, ${long})`);
+						}
+					}
+				} else {
+					if (new Date() - new Date($('.loca').dataset.time) > 20 * 60 * 1000) {
+						// 20 min
+						if (!name) {
+							amap_js_api(long, lati, function() {
+								create_location(`Arrive at ${window.regeo_name}(${lati}, ${long})`);
+							})
+						} else {
+							create_location(`Arrive at ${name}(${lati}, ${long})`);
+						}
+					}
+				}
+			}
+
+			function create_location(content, time) {
+				time = time || new Date().toString();
+				if (equ(TODAY, date) || time) {
+					// forbid new location
+					w_today.innerHTML =
+						`${timestamp(time, 'loca')} <div data-timeline=true data-time='${time}' data-class='${TIMELINE_LOCA}' class='loca'>${content}</div>${w_today.innerHTML}`;
+					store();
+				}
+			}
+
+			function print_a_day(d) {
+				moodsel.display = "none";
+
+				switch_date(d.year, d.mon, d.date);
+				w_today.innerHTML = "";
+
+				diary = JSON.parse(localStorage.getItem('diary') || "{}");
+
+				var diary_year = diary[date.year] = diary[date.year] || {};
+				var diary_mon = diary_year[date.mon] = diary_year[date.mon] || {};
+				var today = diary_mon[date.date] || sec_encode(`\0${TIMELINE_CARD}\0`);
+
+				if (today == sec_encode(`\0${TIMELINE_CARD}\0`))
+					return false;
+
+				today.split('\0').reverse().forEach(content => {
+					let item = sec_decode(content).split('\0');
+					switch (Number(item[1])) {
+						case TIMELINE_CARD:
+							create_card(item[2], item[0]);
+							break;
+						case TIMELINE_MOOD:
+							create_mood(item[2], item[0]);
+							break;
+						case TIMELINE_LOCA:
+							create_location(item[2], item[0]);
+							break;
+						default:
+							console.log("Unknown class:", item[1]);
+							// create_card(item[0]);
+							console.log(item);
+							window.globalerror = item[1]
+					}
+				})
+
+				var day = new Date(`${date.year}-${date.mon}-${date.date}`).getDay();
+				w_today.innerHTML =
+					`<h1>${mons[d.mon-1]} ${d.date}</h1><br><h3>${d.year}, ${days[day]}</h3>` + w_today.innerHTML;
+
+				// check LOCA
+				$$('.loca').forEach(ele => {
+					if (ele.innerText.indexOf("Still") != -1) {
+						// have 'still' in innertext
+						if (ele.previousElementSibling.previousElementSibling == undefined ||
+							!ele.previousElementSibling.previousElementSibling.classList.contains('card')) {
+							// prev-prev item is not a card, the this is a invalid LOCA.
+							ele.previousElementSibling.remove(); // remove the time.
+							ele.remove(); // remove it
+						}
+					}
+				})
+				return w_today.innerHTML;
+			}
+
+			function print_a_month(d) {
+				var day_of_month = getCountDays(d.year, d.mon);
+
+				dateselector_d = new Date(`${date.year}-${date.mon}-${date.date}`);
+				window_ds_open(d.year, d.mon, true);
+				res =
+					`<div class='page-end'><h1 class='f2'>${d.year}</h1><h0>${mons_full[d.mon-1]}</h0><div class='calender'>${$('#window_sel_t').outerHTML}</div></div>`;
+
+				for (var i = 1; i <= day_of_month; i++) {
+					d.date = i;
+					var day = print_a_day(d);
+					if (day)
+						res += `<div class="page-end">${day}</div>`;
+				}
+				return res;
+			}
+
+			function print_last_month() {
+				var d = TODAY;
+				d = new Date(`${d.year}-${d.mon}-${d.date}`);
+				d.setMonth(d.getMonth() - 1);
+				d = {
+					year: d.getFullYear(),
+					mon: d.getMonth() + 1,
+					date: 1
+				};
+				return print_a_month(d);
+			}
+		</script>
+
+		<div id="datetab">
+			<h2 id="ds_year"></h2>
+			<button class=smdl
+				onclick="date=TODAY;load();switch_week(new Date(`${TODAY.year}-${TODAY.mon}-${TODAY.date}`))"
+				ondblclick="cmd()">&#xecaf;</button>
+			<button onclick="ds_week(-1)" class=smdl>&#xe76b;</button>
+			<div id='dateweek'></div>
+			<button onclick="ds_week(1)" class=smdl>&#xe76c;</button>
+			<button class=smdl onclick="open_window_sel()">&#xED28;</button>
+		</div>
+
+		<div id="moodsel">
+			<button onclick="select_mood(this.title, this.innerText)" title="Happy">😄</button>
+			<button onclick="select_mood(this.title, this.innerText)" title="Sad">😢</button>
+			<button onclick="select_mood(this.title, this.innerText)" title="Angry">😠</button>
+			<button onclick="select_mood(this.title, this.innerText)" title="Shock">😱</button>
+		</div>
+
+		<div id="w_today" class="printable">
+		</div>
+		<div onclick="create_card()" class="floatingBtn">+</div>
+
+		<style>
+			.window.container {
+				position: fixed;
+				top: 0;
+				left: 0;
+				z-index: 50000;
+				width: 100vw;
+				height: 100vh;
+				background-color: #11111188;
+			}
+
+			.window.content {
+				width: calc(100vw - 50px);
+				height: calc(100vh - 50px);
+				border-radius: 10px;
+				background-color: #fff;
+				position: relative;
+				top: 15px;
+				left: 15px;
+				padding: 10px;
+				overflow: auto;
+			}
+
+			.window.content>input {
+				border: none;
+				border-bottom: solid black 1px;
+				margin: 5px;
+				color: red;
+			}
+
+			.window.content>textarea {
+				width: 100%;
+				height: 400px;
+
+				white-space: pre-wrap;
+			}
+		</style>
+		<div id="window_import" class="window container">
+			<div class="window content">
+				<center>
+					<h1>Import Data</h1>
+				</center>
+				<textarea placeholder="Data ..." id="window_import_data"></textarea>
+				<div onclick="window_import.style.display='none'" class="floatingBtn" style="top: 50px;">×</div>
+				<div onclick="window_import_import()" class="floatingBtn" data-nostore=true>√</div>
+			</div>
+
+			<script>
+				window_import.style.display = "none";
+
+				init_window_import = function() {
+					window_import_data.value = '';
+				}
+
+				function window_import_import() {
+					var data = window_import_data.value;
+					if (!data) return false;
+
+					data = JSON.parse(data);
+					data['flags'] = diary.flags;
+					localStorage.diary = JSON.stringify(data);
+					window.location.reload();
+				}
+			</script>
+		</div>
+
+		<div id="window_sel" class="window container">
+			<style>
+				#window_sel_wc {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+				}
+
+				table {
+					background-color: white;
+					height: 600px;
+					display: block;
+					padding: 20px;
+					border-radius: 25px;
+					font-size: 25px;
+					font-family: times new roman;
+					user-select: none;
+				}
+
+				th {
+					width: 100px;
+					margin: 10px;
+				}
+
+				td {
+					text-align: center;
+					height: 70px;
+					border-radius: 1000px;
+				}
+
+				h1 {
+					font-size: 60px;
+				}
+
+				sub {
+					font-size: 40px;
+					font-weight: heavy;
+					margin: 10px;
+				}
+
+				span.shadow {}
+			</style>
+			<div class="window content" id="window_sel_wc" style="overflow: hidden;user-select: none;">
+				<div style="text-align: center;">
+					<h1 id="window_sel_h"></h1>
+					<table id="window_sel_t" cellspacing="15px">
+						<thead>
+							<th>Sun</th>
+							<th>Mon</th>
+							<th>Tue</th>
+							<th>Wen</th>
+							<th>Thr</th>
+							<th>Fri</th>
+							<th>Sat</th>
+						</thead>
+						<tbody> </tbody>
+					</table>
+				</div>
+				<div onclick="window_sel.style.display='none'" class="floatingBtn" style="top: 50px;">×</div>
+			</div>
+
+			<script>
+				window_sel.style.display = "none";
+
+				open_window_sel = function() {
+					window_ds_open(dateselector_d.getFullYear(), dateselector_d.getMonth() + 1);
+					window_sel.style.display = "block";
+				}
+
+				function window_sel_submit(seldate) {
+					switch_date(dateselector_d.getFullYear(), dateselector_d.getMonth() + 1, seldate);
+					window_sel.style.display = "none";
+				}
+
+				function getCountDays(year, month) {
+					var curDate = new Date(`${year}-${month}-1`);
+					// 获取当前月份
+					// 将日期设置为32，表示自动计算为下个月的第几天（这取决于当前月份有多少天）
+					curDate.setDate(32);
+					// 返回当前月份的天数
+					return 32 - curDate.getDate();
+				}
+
+				function window_ds_open(year, month, no_selected) {
+
+					var d = new Date(`${year}-${month}-1`);
+
+					h = document.getElementById("window_sel_h") // 标题
+					a = d.getDay() // align date
+					b = getCountDays(year, month) // 一个月有几天
+
+					h.innerHTML =
+						`<span class=smdl onclick="ds_month(-1)">&#xe76b;</span> <span class=shadow>${mons[month-1]}</span><sub>/ ${year}</sub> <span class=smdl onclick="ds_month(1)">&#xe76c;</span>`;
+
+					// 背景色
+					window_sel_wc.style.background = `linear-gradient(-45deg, #ccab50 50%, #ffd664 50%)`;
+
+					// table
+					t = document.getElementById("window_sel_t").children[1];
+					t.innerHTML =
+						"<tr> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> </tr> <tr> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> </tr> <tr> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> </tr> <tr> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> </tr> <tr> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> </tr> <tr> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> </tr>"
+
+					for (var i = a; i < b + a; i++) {
+						c = t.children[Math.floor(i / 7)].children[(i) % 7];
+						c.innerText = `${i+1-a}`;
+
+						let flag = false;
+						// selected day
+						if (equ2(new Date(`${date.year}-${date.mon}-${date.date}`), new Date(`${year}-${month}-${c.innerText}`)) &&
+							!no_selected) {
+							c.style.background = "linear-gradient(45deg, #0004, transparent)";
+							flag = true;
+						}
+						// a day with a diary
+						if (diary[year] && diary[year][month] && diary[year][month][c.innerText])
+							if (flag && !no_selected)
+								c.style.background = "linear-gradient(45deg, #ccab5077, transparent)";
+							else
+								c.style.backgroundColor = "#ccab5066";
+
+						c.onclick = function() {
+							window_sel_submit(this.innerText)
+						}
+					}
+				}
+			</script>
+		</div>
+
+		<div id="window_rr" class="window container">
+			<style>
+				#window_rr_p {
+					width: 80%;
+					max-width: 800px;
+					background-color: antiquewhite;
+					border-radius: 10px;
+					margin: auto;
+					text-align: left;
+					padding: 20px;
+					margin-top: 10px;
+				}
+
+				@keyframes turnturn {
+					0% {
+						transform: rotate(0deg);
+					}
+
+					50% {
+						transform: rotate(180deg);
+					}
+
+					100% {
+						transform: rotate(360deg);
+					}
+				}
+
+				#window_rr_ctrl {
+					border: none;
+					width: 40px;
+					height: 40px;
+					font-size: 25px;
+					border-radius: 20px;
+					margin-bottom: 20px;
+					animation: turnturn 6s linear infinite;
+				}
+
+				#window_rr_ctrl.stop {
+					animation: none;
+				}
+
+				#rr_music {
+					width: 0;
+					height: 0;
+				}
+
+				#wrr_mood {
+					border-top-left-radius: 7px;
+					border-top-right-radius: 7px;
+					padding: 10px;
+					background-color: #ffd0d877;
+				}
+			</style>
+			<div class="window content">
+				<center>
+					<h1 id="window_rr_h1">Random Review</h1>
+				</center>
+				<button id="window_rr_ctrl" title="music by AIVA"
+					onclick="if(this.classList.contains('stop')){this.classList.remove('stop');wrr_resume();} else {this.classList.add('stop');wrr_stop();}">♪</button>
+				<br>
+				<span id="wrr_mood"></span>
+				<p id="window_rr_p"></p>
+				<div onclick="wrr_stop();window_rr.style.display='none'" class="floatingBtn" style="top: 50px;">×</div>
+			</div>
+
+			<script>
+				window_rr.style.display = "none";
+
+				function init_window_rr(time, cont, mood) {
+					window_rr_h1.innerText = time;
+					window_rr_p.innerText = cont;
+					window_rr.style.display = "block";
+
+					wrr_mood.innerText = mood.charAt(0).toUpperCase() + mood.slice(1);
+					mood = mood.substring(0, mood.length - 2);
+
+					rr_music = new Audio(`./musics/${mood}-${Math.floor(Math.random() * 2)}.mp3`);
+					rr_music.loop = true;
+					try {
+						rr_music.play();
+					} catch (err) {
+						window_rr_ctrl.calssList.add('stop');
+					}
+				}
+
+				function wrr_resume() {
+					rr_music.play();
+				}
+
+				function wrr_stop() {
+					rr_music.pause();
+				}
+			</script>
+		</div>
+
+
+
+
+
+		<div id="hidden-div" style="display: none;">
+			<div id="map-obj"></div>
+		</div>
+		<div class="printable"></div>
+	</body>
+	<!--media=print 这个属性在打印时有效 有些不想打印出来的分页打印的都可以应用这类样式进行控制 在非打印时是无效的(可从打印预览中看到效果)-->
+	<style media=print>
+		/* 应用这个样式的在打印时隐藏 */
+		body>*:not(.printable) {
+			display: none !important;
+		}
+
+		/* 应用这个样式的，从那个标签结束开始另算一页，之后在遇到再起一页，以此类推 */
+		.page-end {
+			page-break-after: always;
+		}
+
+		.timestamp.card_ts {
+			float: left;
+			top: 0;
+		}
+
+		.card {
+			font-family: '等线';
+			background-color: #cfac7433;
+			border: none !important;
+			margin-top: 40px;
+			margin-bottom: 40px;
+			line-height: 1.2em;
+			min-height: 0px;
+		}
+
+		.loca {
+			opacity: 100%;
+			background: transparent;
+			opacity: 30%;
+			font-size: 0.9em;
+		}
+
+		.loca_ts {
+			display: block !important;
+			opacity: 30%;
+		}
+
+		.loca::before {
+			color: black;
+		}
+
+		.card+.timestamp+.loca {
+			width: max-content !important;
+			position: relative !important;
+			top: 0px !important;
+			border-top-right-radius: 5px !important;
+			border-top-left-radius: 5px !important;
+			border: none !important;
+			max-width: calc(100vw - 50px) !important;
+		}
+
+		.card_ts {
+			margin-top: 20px;
+		}
+
+		.card:has(+.timestamp+.loca) {
+			border-bottom-right-radius: 10px !important;
+			border-bottom-left-radius: 10px !important;
+		}
+
+		.mood {
+			background-color: #ffd0d899;
+		}
+
+		.loca_ts:has(+.card_ts+.card) {
+			display: none;
+		}
+
+		h1 {
+			font-family: 'SWGothe';
+		}
+
+		h3 {
+			font-family: 'SWGothe';
+			margin-top: -50px;
+			margin-bottom: 50px;
+		}
+
+		h0 {
+			font-size: 100px;
+			font-family: 'SWGothe';
+			margin-bottom: 100px;
+		}
+
+		.f2 {
+			font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+			;
+		}
+	</style>
+	<div id="flag_box"></div>
+</html>
